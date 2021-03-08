@@ -8,7 +8,6 @@ var service = new TaskService();
 // Lấy đối tượng từ API
 function importTasks() {
     document.querySelector(".loader").style.display = "flex";
-
     service.getListTasks()
         .then(function(result) {
             document.querySelector(".loader").style.display = "none";
@@ -81,6 +80,7 @@ getEle("addItem").addEventListener("click", function() {
                 service.addTask(newTask)
                     .then(function(item) {
                         document.querySelector(".loader").style.display = "none";
+                        getEle("newTask").value = "";
                         importTasks();
                         alert("Add success!");
                     })
