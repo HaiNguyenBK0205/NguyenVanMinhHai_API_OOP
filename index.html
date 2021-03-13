@@ -16,36 +16,35 @@
 </head>
 
 <body>
-    <div class="loader">
-        <div class="loading">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </div>
-    <div class="card contain" style="display: none">
+    <div class="card contain">
         <div class="card__header">
             <img src="./img/X2oObC4.png" />
         </div>
         <!-- <h2>hello!</h2> -->
         <div class="card__body">
+            <div class="loader" id="loader">
+                <div class="loading">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
             <div class="card__content">
                 <div class="card__title">
                     <h2>My Tasks</h2>
                     <p>September 9,2020</p>
                 </div>
                 <div class="card__add">
-                    <input id="newTask" type="text" placeholder="Enter an activity..." />
-                    <button id="addItem">
-                      <i class="fa fa-plus"></i>
-                    </button>
-                </div>
-                <div>
-                    <span class="alert-danger" id="spanAlert"></span>
+                    <form>
+                        <input id="newTask" type="text" placeholder="Enter an activity..." />
+                        <button id="addItem">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </form>
                 </div>
                 <div id="notiInput" class="alert-danger" style="display: none"></div>
-                <div class="card__todo">
+                <div class="card__todo" style="display:none" id="card-todo">
                     <!-- Uncompleted tasks -->
                     <ul class="todo" id="todo"></ul>
                     <!-- Completed tasks -->
@@ -75,6 +74,7 @@
     <!-- Script -->
     <script src="./js/Task.js"></script>
     <script src="./js/TaskService.js"></script>
+    <script src="./js/validation.js"></script>
     <script src="./js/main.js"></script>
 </body>
 

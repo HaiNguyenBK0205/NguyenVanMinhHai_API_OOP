@@ -1,8 +1,8 @@
 .loader {
     position: fixed;
     z-index: 1000;
-    width: 100vw;
-    height: 25vh;
+    width: 350px;
+    height: 50vh;
     display: flex;
     justify-content: center;
     align-items: center;

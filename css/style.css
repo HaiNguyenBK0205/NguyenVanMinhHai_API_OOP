@@ -60,6 +60,7 @@ body {
 .card__content {
     position: relative;
     padding: 0 20px;
+    min-height: 300px;
 }
 
 .card__title p {
@@ -176,6 +177,10 @@ span.toggle-btn:hover {
     margin-top: 5px;
 }
 
+.card__add form {
+    width: 100%;
+}
+
 .card__add input {
     width: 100%;
     height: 40px;
@@ -289,7 +294,7 @@ ul.todo li .buttons button {
     cursor: pointer;
     position: relative;
     padding: 5px 0 5px 5px;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 ul.todo li .buttons .remove {
@@ -327,6 +332,14 @@ ul.todo#completed li .buttons .complete .far {
 
 ul.todo#completed span {
     color: #25b99a;
+}
+
+ul.todo li .buttons .rename {
+    color: #aaa;
+}
+
+ul.todo li .buttons .rename:hover {
+    color: #13d4ff;
 }
 
 .alert-danger {

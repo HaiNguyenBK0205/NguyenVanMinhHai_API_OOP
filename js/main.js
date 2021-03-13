@@ -1,91 +1,76 @@
-function getEle(id) {
-    return document.getElementById(id);
+var service = new TaskService();
+var validation = new Validation();
+
+getListTaskService();
+
+function displayLoader(isLoader) {
+    if (isLoader) {
+        getEle("loader").style.display = "flex";
+        getEle("card-todo").style.display = "none";
+    } else {
+        getEle("loader").style.display = "none";
+        getEle("card-todo").style.display = "block";
+    }
 }
 
-// Khai báo đối tượng
-var service = new TaskService();
+function displayListTasks(array) {
+    var contentToDo = "";
+    var contentComplete = "";
+    for (var i = 0; i < array.length; i++) {
+        if (array[i].TaskStatus) {
+            contentComplete += addContent(array[i].id, array[i].TaskName, "fas");
+        } else {
+            contentToDo += addContent(array[i].id, array[i].TaskName, "far");
+        }
+    }
+    getEle("todo").innerHTML = contentToDo;
+    getEle("completed").innerHTML = contentComplete;
+}
 
-// Lấy đối tượng từ API
-function importTasks() {
-    document.querySelector(".loader").style.display = "flex";
+function addContent(id, name, icon) {
+    return `
+    <li>
+        <span>${name}</span>
+        <span class="buttons">
+            <button class="remove">
+                <i class="fas fa-trash-alt" onclick="deleteTaskService(${id})"></i>
+            </button>
+            <button class="complete">
+                <i class="${icon} fa-check-circle" onclick="updateTaskStatus(${id})"></i>
+            </button>
+        </span>
+    </li>
+    `
+}
+
+function getListTaskService() {
     service.getListTasks()
         .then(function(result) {
-            document.querySelector(".loader").style.display = "none";
-            document.querySelector(".contain").style.display = "block";
-            displayTasks(result.data);
+            displayLoader(false);
+            displayListTasks(result.data);
         })
         .catch(function(err) {
             console.log(err);
         })
 }
-importTasks();
 
-// Hiển thị đối tượng
-function displayTasks(Array) {
-    var contentTodo = "";
-    var contentComplete = "";
-    for (var i = 0; i < Array.length; i++) {
-        if (Array[i].TaskStatus) {
-            contentComplete += `
-            <li>
-                <span class="title${i}">${Array[i].TaskName}</span>
-                <div class="buttons">
-                    <button class="remove" onclick="deleteTaskTodo(${Array[i].id})">
-                        <i class="fa fa-trash-alt"></i>
-                    </button>
-                    <button class="complete" onclick="updateTaskTodo(${Array[i].id},${i},false)">
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                </div>
-            </li>
-            `;
-        } else {
-            contentTodo += `
-            <li>
-                <span class="title${i}">${Array[i].TaskName}</span>
-                <div class="buttons">
-                    <button class="remove" onclick="deleteTaskTodo(${Array[i].id})">
-                        <i class="fa fa-trash-alt"></i>
-                    </button>
-                    <button class="complete" onclick="updateTaskTodo(${Array[i].id},${i},true)">
-                        <i class="far fa-check-circle"></i>
-                    </button>
-                </div>
-            </li>
-            `;
-        }
-    }
-    getEle("todo").innerHTML = contentTodo;
-    getEle("completed").innerHTML = contentComplete;
-}
-
-// Thêm Task
-getEle("addItem").addEventListener("click", function() {
-    if (checkEmpty(getEle("newTask").value, "spanAlert", "(*)Please enter activity!")) {
-        return;
-    }
-
-    var newTask = new Task("", getEle("newTask").value, false);
-
-    document.querySelector(".loader").style.display = "flex";
-
+getEle("addItem").addEventListener("click", function(event) {
+    event.preventDefault();
+    var nameTask = getEle("newTask").value;
+    var newTask = new Task("", nameTask, false);
     service.getListTasks()
         .then(function(result) {
-            if (checkContain(result.data, newTask)) {
-                document.querySelector(".loader").style.display = "none";
-                getEle("spanAlert").innerHTML = "(*)Duplicate task name!";
-                return;
-            } else {
-                getEle("spanAlert").innerHTML = "";
+            var isValid = true;
+            isValid &= validation.checkEmpty(nameTask, "notiInput", "(*)Please enter activity!") && validation.checkContain(nameTask, result.data, "notiInput", "(*)Duplicate task name!");
+            if (isValid) {
+                displayLoader(true);
                 service.addTask(newTask)
-                    .then(function(item) {
-                        document.querySelector(".loader").style.display = "none";
+                    .then(function(res) {
                         getEle("newTask").value = "";
-                        importTasks();
-                        alert("Add success!");
+                        getListTaskService();
                     })
-                    .catch(function(err) {
-                        console.log(err);
+                    .catch(function(error) {
+                        console.log(error);
                     })
             }
         })
@@ -94,68 +79,36 @@ getEle("addItem").addEventListener("click", function() {
         })
 })
 
-// Xóa Task
-function deleteTaskTodo(id) {
-    document.querySelector(".loader").style.display = "flex";
+function deleteTaskService(id) {
+    displayLoader(true);
     service.deleteTask(id)
-        .then(function(results) {
-            document.querySelector(".loader").style.display = "none";
-            importTasks();
-            alert("Delete success!");
+        .then(function(result) {
+            getListTaskService();
         })
         .catch(function(err) {
             console.log(err);
         })
 }
 
-// Lấy Task với ID - Chưa sử dụng
-function getTaskID(id) {
-    document.querySelector(".loader").style.display = "flex";
+function updateTaskStatus(id) {
+    displayLoader(true);
     service.getTaskById(id)
-        .then(function(item) {
-            document.querySelector(".loader").style.display = "none";
-            console.log(item.data);
+        .then(function(result) {
+            var newStatus = !result.data.TaskStatus;
+            var newTask = new Task(id, result.data.TaskName, newStatus);
+            service.updateTask(id, newTask)
+                .then(function() {
+                    getListTaskService();
+                })
+                .catch(function(err) {
+                    console.log(err);
+                })
         })
         .catch(function(err) {
             console.log(err);
         })
 }
 
-// Update Task
-function updateTaskTodo(id, i, status) {
-    var name = document.querySelector(`.title${i}`).innerHTML;
-    var task = new Task(id, name, status);
-    document.querySelector(".loader").style.display = "flex";
-    service.updateTask(id, task)
-        .then(function(item) {
-            document.querySelector(".loader").style.display = "flex";
-            importTasks();
-            alert("Change status success!");
-        })
-        .catch(function(err) {
-            console.log(err);
-        })
-}
-
-// Validation
-function checkEmpty(input, spanId, mess) {
-    if (input === "") {
-        getEle(spanId).innerHTML = mess;
-        return true;
-    } else {
-        getEle(spanId).innerHTML = "";
-        return false;
-    }
-}
-
-function checkContain(Array, Task) {
-    console.log(Array);
-    console.log(Task);
-    for (var i = 0; i < Array.length; i++) {
-        if (Task.TaskName === Array[i].TaskName) {
-            console.log(1);
-            return true;
-        }
-    }
-    return false;
+function getEle(id) {
+    return document.getElementById(id);
 }
